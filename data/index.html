@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+  <title>LoRaChat</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+  <link rel="stylesheet" href="lorachat.css">
+  <script src="lorachat.js"></script> 
+
+  <body class="w3-black" onload="gen_onPageLoad()">
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="w3-sidebar w3-border-right border-lorachat w3-bar-block w3-collapse w3-card w3-animate-left w3-black" style="width:350px;">
+      <button class="w3-bar-item w3-blue w3-button w3-large w3-hide-large w3-right" onclick="gui_sidebarClose()">&times;</button>
+      <div class="w3-container w3-blue" style="font-weight: lighter;">
+        <h4>LoRaChat</h4>
+      </div>
+      <!-- Here sidebar items -->
+    </div>
+
+    <!-- Page Content -->
+    <div class="w3-main" style="margin-left:350px;">
+
+      <!-- Title bar -->
+      <div class="w3-bar w3-blue" style="height:50px;">
+          <span class="w3-bar-item w3-button w3-cell w3-blue w3-padding w3-hover-blue w3-xlarge w3-hide-large" onclick="gui_sidebarOpen()">&#9776;</span>
+          <span id="chat-title" class="w3-bar-item w3-xlarge w3-padding w3-blue"></span>
+          <div class="w3-dropdown-click w3-right">
+              <span onclick="gui_dropdownMenuChangeStatus()" class="w3-button w3-blue w3-hover-blue w3-xlarge">&#10998;</span>
+              <div id="dropdown-menu" class="w3-dropdown-content w3-bar-block" style="right:0">
+                <a class="w3-bar-item w3-button w3-dark-gray w3-hover-grey" onclick="gui_openAddChatModal()">Add chat</a>
+                <a class="w3-bar-item w3-button w3-dark-gray w3-hover-grey" onclick="gui_openContactsModal()">Contacts</a>
+                <a class="w3-bar-item w3-button w3-dark-gray w3-hover-grey" onclick="gui_openMainSettingsModal()">Main settings</a>
+                <a class="w3-bar-item w3-button w3-dark-gray w3-hover-grey" onclick="gui_saveDatabase()">Save database</a>
+              </div>
+          </div>     
+      </div>
+
+      <!-- Chat messages screen -->
+      <div id="chat-msg-screen" class="w3-container w3-black" style="height:85vh; overflow-y: scroll; padding-top: 10px;"></div>
+
+      <!-- Typing box and sending button -->
+      <footer id="chat-box" class="w3-bar w3-black" style="position: sticky; height:5%; padding:5px; bottom:0;">
+        <input id="chat-input-box" type="text" class="w3-bar-item chat-input w3-round-xxlarge w3-border" placeholder="Type a message..." style="height:45px; width:85%;" onkeypress="gui_sendMsgOnEnter(event)">
+        <button class="w3-bar-item w3-button w3-blue w3-round-xxlarge w3-right hover-light-blue" style="height:45px; width:14%; text-align: center;" onclick="gui_sendMsg()">&#10148;</button>
+      </footer> 
+
+      <!-- MODALS -->
+      <!-- Main settings modal -->
+      <div id="main-settings-modal" class="w3-modal">
+        <div class="w3-modal-content w3-black w3-border">
+      
+          <header class="w3-container w3-blue">
+            <span onclick="gui_clearMainSettingsModal()"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2>Main Settings</h2>
+          </header>
+      
+          <div class="w3-container">
+            <p>
+              <label class="w3-text-blue"><b>User ID</b></label><br>
+              <input id="main-settings-userid-input" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeUserId()">Change</button>
+            </p>
+            <p>
+              <label class="w3-text-blue"><b>Username</b></label><br>
+              <input id="main-settings-username-input" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeUserName()">Change</button>
+            </p>  
+            <p>
+              <label class="w3-text-blue"><b>Wifi SSID</b></label><br>
+              <input id="main-settings-ssid-input" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeWifiSSID()">Change</button>
+            </p>  
+            <p>
+              <label class="w3-text-blue"><b>Wifi key</b></label><br>
+              <input id="main-settings-key-input" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="password">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeWifiKey()">Change</button>
+            </p>
+            <p>
+              <button class="w3-btn w3-red w3-round-xxlarge w3-hover-light-grey" onclick="gui_clearMainSettingsModal()">Cancel</button>
+            </p> 
+          </div>
+      
+        </div>
+      </div>
+
+      <!-- Conversation settings modal -->
+      <div id="conv-settings-modal" class="w3-modal">
+        <div class="w3-modal-content w3-black w3-border">
+      
+          <header class="w3-container w3-blue">
+            <span onclick="gui_clearChatSettingsModal()"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2>Conversation settings</h2>
+          </header>
+      
+          <div class="w3-container">
+            <p>
+              <label class="w3-text-blue"><b>Chat title</b></label><br>
+              <input id="chat-settings-change-title" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text" maxlength="30">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeChatTitle()">Change</button>
+            </p>  
+            <p>
+              <label class="w3-text-blue"><b>Chat encryption key</b></label><br>
+              <input id="chat-settings-change-key" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text" maxlength="16">
+            </p>
+            <p>
+              <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_changeChatKey()">Change</button>
+            </p>
+            <p id="chat-settings-id-label">Chat ID:</p>
+            <p>
+              <button class="w3-btn w3-yellow w3-round-xxlarge w3-hover-orange" onclick="gui_removeChat()">Remove chat</button>
+              <button class="w3-btn w3-red w3-round-xxlarge w3-hover-light-grey" onclick="gui_clearChatSettingsModal()">Cancel</button>
+            </p> 
+          </div>  
+        </div>
+      </div>
+
+      <!-- Add chat modal -->
+      <div id="add-chat-modal" class="w3-modal">
+        <div class="w3-modal-content w3-black w3-border">
+      
+          <header class="w3-container w3-blue">
+            <span onclick="gui_clearAddChatModal()"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2>Add chat</h2>
+          </header>
+      
+          <div class="w3-container">
+              <p>
+                <label class="w3-text-blue"><b>Chat title</b></label><br>
+                <input id="add-chat-input-title" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text" maxlength="30">
+              </p>
+              <p>
+                <label class="w3-text-blue"><b>Chat ID</b></label><br>
+                <input id="add-chat-input-id" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text">
+              </p>
+              <p>
+                <label class="w3-text-blue"><b>Chat encryption key</b></label><br>
+                <input id="add-chat-input-key" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text" maxlength="50">
+              </p>
+              <p>
+                <button class="w3-btn w3-red w3-round-xxlarge w3-hover-light-grey" onclick="gui_clearAddChatModal()">Cancel</button>
+                <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_addChat()">Add</button>
+              </p>               
+          </div>  
+        </div>
+      </div>
+
+        <!-- Contacts modal -->
+      <div id="contacts-modal" class="w3-modal">
+        <div class="w3-modal-content w3-black w3-border">
+      
+          <header class="w3-container w3-blue">
+            <span onclick="gui_clearContactsModal()"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2>Contacts</h2>
+          </header>
+      
+          <div class="w3-container">
+              <p>
+                <label class="w3-text-blue"><b>Contact list</b></label><br>
+              </p>
+              <div class="w3-container w3-black" style="height:30vh; overflow-y:scroll;">
+                <ul id="contact-list" class="w3-ul w3-dark-grey" style="overflow-y:scroll;"></ul>
+              </div>   
+              <p>
+                <button class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue" onclick="gui_openAddOrChangeContactModal()">Add contact</button>
+              </p>       
+          </div>  
+        </div>
+      </div>
+
+        <!-- Add or change contact modal -->
+      <div id="add-change-contact-modal" class="w3-modal">
+        <div class="w3-modal-content w3-black w3-border">
+      
+          <header class="w3-container w3-blue">
+            <span onclick="gui_clearAddOrChangeContactModal()"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2 id="add-change-contact-title">Add or change Contact</h2>
+          </header>
+      
+          <div class="w3-container">
+              <p>
+                <label class="w3-text-blue"><b>Contact name</b></label><br>
+                <input id="add-change-contact-input-name" class="w3-input w3-dark-grey w3-border w3-round-xxlarge" type="text" maxlength="15">
+              </p>
+              <p id="add-change-contact-modal-contact-id">
+                <label id="add-change-contact-modal-contact-id-label" class="w3-text-blue"><b>Contact ID</b></label><br>
+              </p>
+              <p>
+                <button class="w3-btn w3-red w3-round-xxlarge w3-hover-light-grey" onclick="gui_clearAddOrChangeContactModal()">Cancel</button>
+                <button id="add-change-contact-button" class="w3-btn w3-blue w3-round-xxlarge w3-hover-light-blue"></button>
+              </p>               
+          </div>  
+        </div>
+      </div>
+
+      <!-- Alert modal -->
+      <div id="alert-modal" class="w3-modal">
+          <div class="w3-modal-content">
+              <div id="alert-panel">
+                <span onclick="document.getElementById('alert-modal').style.display='none';" class="w3-button w3-large w3-display-topright">&times;</span>
+                <p id="alert-text"></p>
+              </div>
+          </div>
+      </div>
+
+      <!-- WebSocket modal -->
+      <div id="websocket-modal" class="w3-modal">
+          <div class="w3-modal-content w3-yellow w3-padding">
+              <div>
+                <p> WebSocket disconnected. Waiting....</p>
+              </div>
+          </div>
+      </div>
+
+    </div>     
+  </body>
+</html>
