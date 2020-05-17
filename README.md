@@ -52,7 +52,7 @@ It is important, but not mandatory, to change the WiFi key in Main Settings (cli
 
 ## Contact
 
-comodore1917@protonmail.com
+commodore1917@protonmail.com
 
 License
 ----
